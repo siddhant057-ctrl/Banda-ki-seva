@@ -5,19 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>स्ट्रीट फूड डिलीवरी - Banda Ki Seva</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
 <style>
     :root {
         --primary: #FF5722;
         --primary-light: #FF8A50;
         --primary-dark: #E64A19;
         --secondary: #FFC107;
-        --telegram: #2AABEE;
-        --whatsapp: #25D366;
-        --light: #FFF8F0;
-        --dark: #1a1a2e;
-        --text: #333;
-        --card: #ffffff;
-        --shadow: 0 5px 25px rgba(0,0,0,0.1);
+        --light: #f8f9fa;
+        --dark: #333;
+        --gray: #6c757d;
+        --light-gray: #e9ecef;
+        --danger: #f44336;
+        --warning: #ffc107;
+        --info: #2196f3;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         --radius: 15px;
         --radius-sm: 10px;
     }
@@ -26,14 +28,16 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Segoe UI', 'Noto Sans Devanagari', Tahoma, sans-serif;
+        font-family: 'Segoe UI', 'Arial', sans-serif;
     }
 
     body {
+        font-family: 'Segoe UI', 'Arial', sans-serif;
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        color: var(--text);
+        color: var(--dark);
+        line-height: 1.6;
         min-height: 100vh;
-        padding-bottom: 40px;
+        padding-bottom: 80px;
     }
 
     /* Language Toggle */
@@ -58,8 +62,6 @@
         cursor: pointer;
         transition: all 0.3s;
         font-size: 14px;
-        background: transparent;
-        color: var(--dark);
     }
 
     .lang-btn.active {
@@ -116,10 +118,14 @@
         font-weight: normal;
     }
 
-    /* Navigation Links */
-    .nav-links {
+    .user-badge {
         display: flex;
+        align-items: center;
         gap: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 15px;
+        border-radius: 30px;
+        font-size: 14px;
     }
 
     .nav-btn {
@@ -142,408 +148,667 @@
         transform: translateY(-2px);
     }
 
-    .nav-btn i {
-        font-size: 16px;
-    }
-
-    /* Container */
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    /* Hero Section */
-    .hero-section {
+    /* Welcome Section */
+    .welcome-section {
+        padding: 20px;
         text-align: center;
-        padding: 40px 20px;
-        margin-bottom: 30px;
+        background: linear-gradient(135deg, #ffffff 0%, #fff8f0 100%);
+        border-radius: 0 0 var(--radius) var(--radius);
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .hero-logo {
-        font-size: 4rem;
-        margin-bottom: 15px;
+    .welcome-icon {
+        font-size: 48px;
         color: var(--primary);
-        animation: pulse 3s infinite;
+        margin-bottom: 10px;
+        animation: bounce 2s infinite;
     }
 
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
     }
 
-    .hero-title {
-        font-size: 2.2rem;
-        margin-bottom: 15px;
+    .welcome-text h2 {
+        font-size: 24px;
         color: var(--primary-dark);
+        margin-bottom: 10px;
     }
 
-    .hero-subtitle {
-        font-size: 1.2rem;
-        max-width: 600px;
-        margin: 0 auto 25px;
-        line-height: 1.5;
-        color: var(--gray);
+    /* Food Items Section */
+    .food-section {
+        margin: 20px;
     }
 
-    /* Cards */
-    .card {
-        background: var(--card);
-        border-radius: var(--radius);
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: var(--shadow);
-        position: relative;
-        overflow: hidden;
-        border: 1px solid #eaeaea;
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-    }
-
-    .intro-card {
-        border-left: 5px solid var(--primary);
-        text-align: center;
-    }
-
-    .intro-card h1 {
-        color: var(--primary-dark);
-        font-size: 1.8rem;
+    .food-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 15px;
-        line-height: 1.4;
     }
 
-    .intro-text {
-        font-size: 1.05rem;
-        line-height: 1.6;
-        margin-bottom: 15px;
-        color: var(--text);
-    }
-
-    .highlight {
-        background: linear-gradient(to right, var(--primary-light), var(--primary));
-        color: white;
-        padding: 5px 10px;
-        border-radius: 8px;
+    .food-title {
+        font-size: 20px;
         font-weight: bold;
-        display: inline-block;
-        text-shadow: none;
-        box-shadow: 0 3px 10px rgba(255, 87, 34, 0.3);
-    }
-
-    .delivery-note {
-        background: rgba(255, 200, 7, 0.15);
-        padding: 15px;
-        border-radius: var(--radius-sm);
-        margin-top: 15px;
-        border-left: 4px solid var(--secondary);
-        font-size: 0.95rem;
-        text-align: left;
-    }
-
-    /* Section Titles */
-    .section-title {
         color: var(--primary-dark);
-        font-size: 1.6rem;
-        margin-bottom: 25px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid var(--primary-light);
         display: flex;
         align-items: center;
         gap: 10px;
     }
 
-    .section-title i {
-        background: var(--primary);
-        color: white;
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        box-shadow: 0 4px 8px rgba(255, 87, 34, 0.3);
-    }
-
-    /* Form Styling */
-    .form-group {
-        margin-bottom: 25px;
-        position: relative;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: var(--dark);
-        font-size: 1rem;
-    }
-
-    .input-icon {
-        position: relative;
-    }
-
-    .input-icon i {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--primary);
-        font-size: 1.1rem;
-    }
-
-    input, select, textarea {
-        width: 100%;
-        padding: 15px 15px 15px 50px;
-        border: 1px solid #ddd;
-        border-radius: 12px;
-        font-size: 1rem;
-        background: white;
-        transition: all 0.3s;
-        color: var(--text);
-    }
-
-    input:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.1);
-    }
-
-    textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    /* Order Items */
-    .order-items-container {
+    .food-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
         margin-bottom: 20px;
     }
 
-    .order-item {
-        background: #f8f9fa;
-        border-radius: var(--radius-sm);
-        padding: 20px;
-        margin-bottom: 15px;
-        border: 1px dashed var(--primary-light);
+    .food-card {
+        background: white;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid transparent;
         position: relative;
     }
 
-    .remove-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: #ff5252;
-        color: white;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 1.2rem;
-        box-shadow: 0 3px 10px rgba(255, 0, 0, 0.2);
-        transition: all 0.3s;
-        z-index: 10;
-    }
-
-    .remove-btn:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-    }
-
-    .flex-row {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 15px;
-    }
-
-    .flex-col {
-        flex: 1;
-    }
-
-    /* Add Item Button */
-    .add-item-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        background: linear-gradient(to right, var(--primary), var(--primary-dark));
-        color: white;
-        border: none;
-        padding: 14px 20px;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        margin: 10px 0 20px;
-        transition: all 0.3s;
-        width: 100%;
-        font-size: 1.1rem;
-        box-shadow: 0 5px 15px rgba(255, 87, 34, 0.3);
-    }
-
-    .add-item-btn:hover {
-        background: linear-gradient(to right, var(--primary-light), var(--primary));
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(255, 87, 34, 0.4);
-    }
-
-    /* Food Items Grid */
-    .food-items-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 15px;
-        margin: 20px 0;
-    }
-
-    .food-item-card {
-        background: white;
-        border-radius: var(--radius-sm);
-        padding: 15px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s;
-        border: 2px solid transparent;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-
-    .food-item-card:hover {
+    .food-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
         border-color: var(--primary-light);
     }
 
-    .food-item-card.selected {
-        border-color: var(--primary);
-        background: linear-gradient(135deg, #fff8f0, #ffe0cc);
+    .food-image {
+        width: 100%;
+        height: 180px;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        color: var(--primary);
+        position: relative;
     }
 
-    .food-icon {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-        color: var(--primary);
+    .food-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: var(--secondary);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        z-index: 2;
+    }
+
+    .food-body {
+        padding: 15px;
     }
 
     .food-name {
-        font-weight: 600;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
         color: var(--dark);
-        font-size: 1rem;
-        margin-bottom: 5px;
+        height: 50px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .food-description {
+        font-size: 14px;
+        color: var(--gray);
+        margin-bottom: 10px;
+        height: 40px;
+        overflow: hidden;
     }
 
     .food-price {
         color: var(--primary);
+        font-size: 22px;
         font-weight: 700;
-        font-size: 1.1rem;
-    }
-
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        gap: 15px;
-        margin-top: 25px;
-    }
-    
-    .action-btn {
-        flex: 1;
+        margin-bottom: 15px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 18px;
-        border-radius: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s;
-        font-size: 1.1rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        border: none;
-        cursor: pointer;
-    }
-    
-    .whatsapp-btn {
-        background: linear-gradient(to right, var(--whatsapp), #128C7E);
-        color: white;
+        gap: 5px;
     }
 
-    .whatsapp-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
-    }
-
-    .telegram-btn {
-        background: linear-gradient(to right, var(--telegram), #229ED9);
-        color: white;
-    }
-
-    .telegram-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(42, 171, 238, 0.3);
-    }
-
-    .action-btn i {
-        margin-right: 10px;
-        font-size: 1.4rem;
-    }
-
-    /* Footer */
-    footer {
-        text-align: center;
-        margin-top: 40px;
-        color: #666;
-        font-size: 0.95rem;
-        padding: 20px;
-        border-top: 1px solid #eaeaea;
-        background: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-    }
-
-    .contact-info {
+    .food-controls {
         display: flex;
-        justify-content: center;
-        gap: 30px;
-        margin: 20px 0;
-        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 15px;
     }
 
-    .contact-item {
+    .qty-controls {
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 1rem;
+        background: #f5f5f5;
+        padding: 6px 12px;
+        border-radius: 20px;
     }
 
-    .social-links {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin: 20px 0;
-    }
-
-    .social-link {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        border: none;
         background: var(--primary);
         color: white;
+        font-size: 16px;
+        border-radius: 50%;
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        text-decoration: none;
-        transition: all 0.3s;
-        box-shadow: 0 3px 10px rgba(255, 87, 34, 0.2);
+        transition: background 0.3s;
     }
 
-    .social-link:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(255, 87, 34, 0.3);
+    .qty-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .qty-display {
+        font-size: 16px;
+        font-weight: 700;
+        min-width: 30px;
+        text-align: center;
+        color: var(--dark);
+    }
+
+    .add-to-cart {
+        background: var(--secondary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+        box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+    }
+
+    .add-to-cart:hover {
+        background: #e68900;
+        transform: scale(1.05);
+    }
+
+    /* Fixed Order Button */
+    .fixed-order-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 18px 40px;
+        border-radius: 50px;
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
+        z-index: 1000;
+        transition: all 0.3s;
+        border: none;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4); }
+        50% { box-shadow: 0 6px 30px rgba(255, 87, 34, 0.6); }
+        100% { box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4); }
+    }
+
+    .fixed-order-btn:hover {
+        transform: translateX(-50%) scale(1.05);
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    }
+
+    .fixed-order-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        animation: none;
+    }
+
+    /* Cart Preview Modal */
+    .cart-preview-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1100;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .cart-preview-modal.active {
+        display: flex;
+    }
+
+    .cart-preview-content {
+        background: white;
+        width: 100%;
+        max-width: 500px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .cart-preview-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .cart-preview-header h3 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 22px;
+    }
+
+    .cart-preview-body {
+        padding: 25px;
+    }
+
+    .cart-items-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 20px;
+    }
+
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+
+    .cart-item-info h4 {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .cart-item-info .price {
+        font-size: 14px;
+        color: var(--gray);
+    }
+
+    .cart-item-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cart-item-qty {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .cart-item-qty-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: var(--light-gray);
+        color: var(--dark);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .cart-item-qty-btn:hover {
+        background: #ddd;
+    }
+
+    .cart-item-price {
+        font-weight: 700;
+        color: var(--primary);
+        min-width: 80px;
+        text-align: right;
+        font-size: 16px;
+    }
+
+    .cart-summary {
+        margin-top: 20px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 16px;
+    }
+
+    .delivery-info-row {
+        color: var(--info);
+        font-weight: 600;
+    }
+
+    .total {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--primary);
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px dashed #ddd;
+    }
+
+    .cart-preview-footer {
+        padding: 20px 25px;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .btn {
+        padding: 14px 30px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex: 1;
+    }
+
+    .btn-secondary {
+        background: var(--light-gray);
+        color: var(--dark);
+    }
+
+    .btn-secondary:hover {
+        background: #ddd;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 8px rgba(255, 87, 34, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        transform: translateY(-2px);
+    }
+
+    /* Order Form Modal */
+    .order-form-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1200;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .order-form-modal.active {
+        display: flex;
+    }
+
+    .order-form-content {
+        background: white;
+        width: 100%;
+        max-width: 600px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .order-form-header {
+        background: linear-gradient(135deg, var(--secondary), #e68900);
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .order-form-header h3 {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    .order-form-body {
+        padding: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 16px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+        width: 100%;
+        padding: 15px;
+        border-radius: 10px;
+        border: 2px solid #ddd;
+        font-size: 16px;
+        font-family: inherit;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .location-section {
+        border: 2px dashed #ddd;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .location-btn {
+        background: var(--info);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+        transition: background 0.3s;
+    }
+
+    .location-btn:hover {
+        background: #0b7dda;
+    }
+
+    .location-display {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 15px;
+        font-size: 14px;
+        display: none;
+    }
+
+    .location-display.active {
+        display: block;
+    }
+
+    .order-summary-box {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        border: 2px solid #eaeaea;
+    }
+
+    .order-summary-box h4 {
+        margin-bottom: 15px;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+    }
+
+    .order-form-footer {
+        padding: 25px;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: center;
+    }
+
+    .submit-order-btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 18px 50px;
+        border-radius: 15px;
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s;
+        box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
+        width: 100%;
+        justify-content: center;
+    }
+
+    .submit-order-btn:hover {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 87, 34, 0.5);
+    }
+
+    .submit-order-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Success Modal */
+    .success-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1400;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .success-modal.active {
+        display: flex;
+    }
+
+    .success-content {
+        background: white;
+        width: 100%;
+        max-width: 500px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        padding: 40px;
+    }
+
+    .success-icon {
+        font-size: 80px;
+        color: var(--primary);
+        margin-bottom: 20px;
+        animation: successAnimation 1s;
+    }
+
+    @keyframes successAnimation {
+        0% { transform: scale(0); }
+        70% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    .success-content h2 {
+        font-size: 28px;
+        color: var(--primary-dark);
+        margin-bottom: 15px;
+    }
+
+    .success-content p {
+        color: var(--gray);
+        margin-bottom: 25px;
+        font-size: 17px;
+    }
+
+    .success-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    .success-btn:hover {
+        background: var(--primary-dark);
     }
 
     /* Toast Notification */
@@ -553,13 +818,13 @@
         right: 30px;
         background: var(--primary);
         color: white;
-        padding: 15px 25px;
+        padding: 18px 25px;
         border-radius: 10px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         display: flex;
         align-items: center;
         gap: 15px;
-        z-index: 2000;
+        z-index: 1300;
         transform: translateX(100px);
         opacity: 0;
         transition: transform 0.4s, opacity 0.4s;
@@ -580,6 +845,30 @@
         font-weight: 600;
     }
 
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: var(--gray);
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        margin-top: 20px;
+    }
+
+    .empty-state i {
+        font-size: 60px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+        color: var(--primary-light);
+    }
+
+    .empty-state h3 {
+        font-size: 22px;
+        margin-bottom: 10px;
+        color: var(--dark);
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
         .header {
@@ -588,7 +877,8 @@
             padding: 15px;
         }
         
-        .nav-links {
+        .user-badge {
+            order: 1;
             width: 100%;
             justify-content: center;
             margin-top: 10px;
@@ -599,58 +889,45 @@
             justify-content: center;
         }
         
-        .flex-row {
-            flex-direction: column;
-            gap: 15px;
+        .food-container {
+            grid-template-columns: 1fr;
         }
         
-        .contact-info {
-            flex-direction: column;
-            gap: 15px;
+        .fixed-order-btn {
+            width: 90%;
+            justify-content: center;
+            padding: 15px 20px;
+            font-size: 18px;
         }
         
-        .action-buttons {
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .section-title {
-            font-size: 1.4rem;
-        }
-        
-        .card {
-            padding: 20px;
-        }
-        
-        .hero-title {
-            font-size: 1.8rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.1rem;
-        }
-        
-        .food-items-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .btn {
+            padding: 12px 20px;
+            font-size: 15px;
         }
     }
 
     @media (max-width: 480px) {
-        .hero-title {
-            font-size: 1.6rem;
+        .welcome-text h2 {
+            font-size: 20px;
         }
         
-        .hero-logo {
-            font-size: 3rem;
+        .food-name {
+            font-size: 16px;
         }
         
-        .section-title {
-            font-size: 1.2rem;
+        .food-price {
+            font-size: 20px;
         }
         
-        .action-btn {
-            padding: 15px;
-            font-size: 1rem;
+        .cart-preview-footer, .order-form-footer {
+            flex-direction: column;
+        }
+        
+        .toast {
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            max-width: none;
         }
         
         .language-toggle {
@@ -662,14 +939,11 @@
             padding: 6px 12px;
             font-size: 12px;
         }
-        
-        .food-items-grid {
-            grid-template-columns: 1fr;
-        }
     }
 </style>
 </head>
 <body>
+
 <!-- Language Toggle -->
 <div class="language-toggle">
     <button class="lang-btn active" onclick="changeLanguage('hi')">हिंदी</button>
@@ -688,313 +962,491 @@
         </div>
     </div>
     
-    <div class="nav-links">
+    <div class="user-badge">
+        <i class="fas fa-map-marker-alt"></i>
+        <span id="colonyName">Swaraj Colony</span>
+        <div class="cart-icon" onclick="showCartPreview()">
+            <i class="fas fa-shopping-cart"></i>
+            <div class="cart-count" id="cartCount">0</div>
+        </div>
         <a href="index.html" class="nav-btn">
             <i class="fas fa-shopping-basket"></i>
             <span id="rationText">राशन ऑर्डर</span>
         </a>
-        <a href="orders.html" class="nav-btn">
-            <i class="fas fa-history"></i>
-            <span id="ordersText">मेरे ऑर्डर्स</span>
-        </a>
     </div>
 </header>
 
-<!-- Hero Section -->
-<div class="hero-section">
-    <div class="hero-logo">🍜</div>
-    <h1 class="hero-title" id="heroTitle">स्वराज कॉलोनी के लिए स्ट्रीट फूड डिलीवरी</h1>
-    <p class="hero-subtitle" id="heroSubtitle">गरमा-गरम चाट, पाव भाजी, गोलगप्पे या मोमो — सब कुछ घर बैठे!</p>
+<!-- Welcome Section -->
+<div class="welcome-section">
+    <div class="welcome-icon">
+        <i class="fas fa-hamburger"></i>
+    </div>
+    <div class="welcome-text">
+        <h2 id="welcomeTitle">🍽️ स्वराज कॉलोनी के लिए स्ट्रीट फूड डिलीवरी 🍽️</h2>
+        <p id="welcomeText">गरमा-गरम चाट, पाव भाजी, गोलगप्पे या मोमो — सब कुछ घर बैठे!</p>
+    </div>
 </div>
 
-<div class="container">
-    <!-- Intro Card -->
-    <div class="card intro-card">
-        <h1 id="introTitle">🚀 क्या आपका मन कर रहा है गरमा-गरम स्ट्रीट फूड?</h1>
-        <p class="intro-text" id="introText1">🎯 अब बाहर जाने की ज़रूरत नहीं — <span class="highlight">बंदा की सेवा</span> लाएगा आपके पसंदीदा स्ट्रीट फूड को सीधे आपके दरवाज़े पर।</p>
-        <p class="intro-text" id="introText2">📍 हम स्वराज कॉलोनी में सभी प्रकार के स्ट्रीट फूड की होम डिलीवरी करते हैं।</p>
-        
-        <div class="delivery-note">
-            <strong>💸 डिलीवरी चार्ज:</strong> <span id="deliveryCharge">₹20 फिक्स्ड</span><br>
-            <strong>📲 WhatsApp ऑर्डर:</strong> <a href="https://wa.me/916351598832" style="color: #25D366; font-weight: bold;" id="whatsappLink">6351598832</a> <span id="whatsappText">पर मैसेज करें</span><br>
-            <strong>📩 Telegram ऑर्डर:</strong> <a href="https://t.me/your_telegram_bot" style="color: #2AABEE; font-weight: bold;" id="telegramLink">@BandaKiSewaBot</a> <span id="telegramText">पर मैसेज करें</span>
+<!-- Food Items Section -->
+<div class="food-section">
+    <div class="food-header">
+        <h2 class="food-title">
+            <i class="fas fa-store"></i>
+            <span id="foodItemsTitle">स्ट्रीट फूड आइटम्स</span>
+        </h2>
+    </div>
+    
+    <!-- Food Grid -->
+    <div class="food-container" id="foodContainer">
+        <!-- Food items will be dynamically added -->
+        <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <h3 id="loadingTitle">फूड आइटम लोड हो रहे हैं...</h3>
+            <p id="loadingText">कृपया थोड़ी देर प्रतीक्षा करें</p>
         </div>
     </div>
+</div>
 
-    <!-- Food Items Selection -->
-    <div class="card">
-        <h2 class="section-title"><i class="fas fa-hamburger"></i> <span id="foodSelectionTitle">🍽️ पसंदीदा आइटम चुनें</span></h2>
-        
-        <div class="food-items-grid" id="foodItemsGrid">
-            <!-- Food items will be dynamically added here -->
-        </div>
-        
-        <div class="form-group">
-            <label id="customItemLabel">✏️ अन्य आइटम (अगर ऊपर नहीं है)</label>
-            <div class="input-icon">
-                <i class="fas fa-edit"></i>
-                <input type="text" id="customFoodItem" placeholder="जैसे: स्पेशल बर्गर, पनीर टिक्का, etc.">
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label id="quantityLabel">📦 मात्रा</label>
-            <div class="input-icon">
-                <i class="fas fa-weight"></i>
-                <input type="text" id="foodQuantity" placeholder="उदा: 2 प्लेट, 1 पैकेट, 4 पीस" required>
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label id="specialInstructionsLabel">📝 विशेष निर्देश (अगर कोई)</label>
-            <div class="input-icon">
-                <i class="fas fa-sticky-note"></i>
-                <textarea id="specialInstructions" placeholder="उदाहरण: कम मिर्च, एक्स्ट्रा चटनी, आलू कम, etc." rows="3"></textarea>
-            </div>
-        </div>
-    </div>
+<!-- Fixed Order Button -->
+<button class="fixed-order-btn" id="fixedOrderBtn" onclick="showOrderForm()" disabled>
+    <i class="fas fa-paper-plane"></i>
+    <span id="orderButtonText">ऑर्डर सबमिट करें</span>
+    <i class="fas fa-arrow-right"></i>
+</button>
 
-    <!-- Customer Details -->
-    <div class="card">
-        <h2 class="section-title"><i class="fas fa-user"></i> <span id="customerDetailsTitle">👤 आपकी जानकारी</span></h2>
-        
-        <div class="form-group">
-            <label id="nameLabel">👤 आपका नाम *</label>
-            <div class="input-icon">
-                <i class="fas fa-user"></i>
-                <input type="text" id="customerName" placeholder="आपका पूरा नाम" required>
-            </div>
+<!-- Cart Preview Modal -->
+<div class="cart-preview-modal" id="cartPreviewModal">
+    <div class="cart-preview-content">
+        <div class="cart-preview-header">
+            <h3><i class="fas fa-shopping-cart"></i> <span id="cartTitle">आपकी टोकरी</span></h3>
+            <i class="fas fa-times close-modal" onclick="hideCartPreview()"></i>
         </div>
-
-        <div class="flex-row">
-            <div class="flex-col">
-                <label id="phoneLabel">📞 मोबाइल नंबर *</label>
-                <div class="input-icon">
-                    <i class="fas fa-phone"></i>
-                    <input type="tel" id="customerPhone" placeholder="10 अंकों का नंबर" required pattern="[0-9]{10}">
+        
+        <div class="cart-preview-body">
+            <div class="cart-items-list" id="cartItemsList">
+                <!-- Cart items will be dynamically added -->
+                <div class="empty-state" style="padding: 30px;">
+                    <i class="fas fa-shopping-basket"></i>
+                    <h3 id="emptyCartTitle">आपकी टोकरी खाली है</h3>
+                    <p id="emptyCartText">उत्पाद जोड़ने के लिए + बटन पर क्लिक करें</p>
                 </div>
             </div>
             
-            <div class="flex-col">
-                <label id="houseLabel">🏠 हाउस नंबर *</label>
-                <div class="input-icon">
-                    <i class="fas fa-home"></i>
-                    <input type="text" id="houseNumber" placeholder="आपका हाउस नंबर" required>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span id="totalItemsText">कुल आइटम:</span>
+                    <span id="previewTotalItems">0</span>
+                </div>
+                <div class="summary-row">
+                    <span id="subtotalText">कुल मूल्य:</span>
+                    <span id="previewSubtotal">₹0</span>
+                </div>
+                <div class="summary-row delivery-info-row" id="deliveryInfoRow">
+                    <span id="deliveryText">डिलीवरी शुल्क:</span>
+                    <span id="previewDelivery">₹20</span>
+                </div>
+                <div class="summary-row total">
+                    <span id="totalAmountText">कुल राशि:</span>
+                    <span id="previewTotalAmount">₹20</span>
                 </div>
             </div>
         </div>
-
-         <div class="form-group">
-            <label id="addressLabel">📍 पूरा पता *</label>
-            <div class="input-icon">
-                <i class="fas fa-map-marked-alt"></i>
-                <textarea id="customerAddress" placeholder="अपना पूरा पता लिखें" required></textarea>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label id="deliveryTimeLabel">⏰ डिलीवरी समय</label>
-            <div class="input-icon">
-                <i class="fas fa-clock"></i>
-                <select id="deliveryTime">
-                    <option value="" id="selectTimeOption">-- समय चुनें --</option>
-                    <option value="11:00-13:00" id="time1">सुबह 11:00 - 1:00</option>
-                    <option value="13:00-15:00" id="time2">दोपहर 1:00 - 3:00</option>
-                    <option value="15:00-17:00" id="time3">दोपहर 3:00 - 5:00</option>
-                    <option value="17:00-19:00" id="time4">शाम 5:00 - 7:00</option>
-                    <option value="19:00-21:00" id="time5">शाम 7:00 - 9:00</option>
-                    <option value="21:00-22:00" id="time6">रात 9:00 - 10:00</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="card" style="text-align: center;">
-        <h2 class="section-title"><i class="fas fa-paper-plane"></i> <span id="submitTitle">🚀 ऑर्डर भेजें</span></h2>
         
-        <p id="orderNote" style="margin-bottom: 20px; color: #666;">
-            ✅ ऑर्डर भेजने के बाद हमारी टीम आपसे संपर्क करेगी<br>
-            💰 डिलीवरी चार्ज: ₹20 फिक्स्ड
-        </p>
-        
-        <div class="action-buttons">
-            <button class="action-btn whatsapp-btn" onclick="sendOrderViaWhatsApp()">
-                <i class="fab fa-whatsapp"></i> 
-                <span id="whatsappBtnText">WhatsApp पर ऑर्डर भेजें</span>
+        <div class="cart-preview-footer">
+            <button class="btn btn-secondary" onclick="hideCartPreview()">
+                <i class="fas fa-shopping"></i>
+                <span id="continueShoppingText">खरीदारी जारी रखें</span>
             </button>
-            <button class="action-btn telegram-btn" onclick="sendOrderViaTelegram()">
-                <i class="fab fa-telegram"></i> 
-                <span id="telegramBtnText">Telegram पर ऑर्डर भेजें</span>
+            <button class="btn btn-primary" onclick="showOrderForm()">
+                <i class="fas fa-check-circle"></i>
+                <span id="placeOrderText">ऑर्डर देना है</span>
             </button>
         </div>
-        
-        <p style="margin-top: 20px; font-size: 0.9rem; color: #888;">
-            📞 कोई प्रॉब्लम है? कॉल करें: <a href="tel:6798434092" style="color: var(--primary); font-weight: bold;">6798434092</a>
-        </p>
     </div>
 </div>
 
-<footer class="container">
-    <div class="contact-info">
-        <div class="contact-item">
-            <i class="fas fa-phone"></i>
-            <span id="phoneNumber">📞 6798434092</span>
+<!-- Order Form Modal -->
+<div class="order-form-modal" id="orderFormModal">
+    <div class="order-form-content">
+        <div class="order-form-header">
+            <h3 id="orderFormTitle">📝 आखिरी स्टेप! 📝</h3>
+            <p id="orderFormSubtitle">अपना विवरण भरें और ऑर्डर सबमिट करें</p>
         </div>
-        <div class="contact-item">
-            <i class="fas fa-clock"></i>
-            <span id="timing">⏰ 11AM - 10PM</span>
+        
+        <div class="order-form-body">
+            <div class="form-group">
+                <label for="customerName"><i class="fas fa-user"></i> <span id="nameLabel">आपका नाम *</span></label>
+                <input type="text" id="customerName" placeholder="अपना पूरा नाम लिखें">
+            </div>
+            
+            <div class="form-group">
+                <label for="customerPhone"><i class="fas fa-phone"></i> <span id="phoneLabel">फोन नंबर *</span></label>
+                <input type="tel" id="customerPhone" placeholder="अपना 10-अंकीय मोबाइल नंबर">
+            </div>
+            
+            <div class="form-group">
+                <label for="customerAddress"><i class="fas fa-home"></i> <span id="addressLabel">पूरा पता *</span></label>
+                <textarea id="customerAddress" rows="3" placeholder="मकान नंबर, गली नंबर, कॉलोनी का नाम"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="deliveryTime"><i class="fas fa-clock"></i> <span id="deliveryTimeLabel">डिलीवरी समय</span></label>
+                <select id="deliveryTime">
+                    <option value="11:00-13:00">सुबह 11:00 - 1:00</option>
+                    <option value="13:00-15:00" selected>दोपहर 1:00 - 3:00</option>
+                    <option value="15:00-17:00">दोपहर 3:00 - 5:00</option>
+                    <option value="17:00-19:00">शाम 5:00 - 7:00</option>
+                    <option value="19:00-21:00">शाम 7:00 - 9:00</option>
+                    <option value="21:00-22:00">रात 9:00 - 10:00</option>
+                </select>
+            </div>
+
+                        <!-- Location Section -->
+            <div class="location-section">
+                <label><i class="fas fa-location-dot"></i> <span id="locationLabel">आपका स्थान</span></label>
+                <p id="locationHelp" style="font-size:14px; color:#666; margin-bottom:10px;">अपना स्थान साझा करें ताकि डिलीवरी आसान हो</p>
+                <div id="locationDisplay" class="location-display">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="locationText">स्थान लोड हो रहा है...</span>
+                </div>
+                <button type="button" class="location-btn" onclick="getUserLocation()">
+                    <i class="fas fa-location-arrow"></i>
+                    <span id="locationButtonText">स्थान साझा करें</span>
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label for="orderNotes"><i class="fas fa-sticky-note"></i> <span id="notesLabel">विशेष निर्देश (अगर कोई हो)</span></label>
+                <textarea id="orderNotes" rows="2" placeholder="उदाहरण: कम मिर्च, एक्स्ट्रा चटनी, आलू कम"></textarea>
+            </div>
+            
+            <div class="order-summary-box">
+                <h4><i class="fas fa-receipt"></i> <span id="orderSummaryTitle">आपका ऑर्डर सारांश</span></h4>
+                <div id="orderSummaryContent"></div>
+                <div class="summary-row delivery-info-row">
+                    <span id="deliveryChargeText">डिलीवरी शुल्क:</span>
+                    <span id="orderFormDelivery">₹20</span>
+                </div>
+                <div class="summary-row total">
+                    <span id="totalText">कुल राशि:</span>
+                    <span id="orderFormTotal">₹20</span>
+                </div>
+            </div>
         </div>
-        <div class="contact-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <span id="location">📍 स्वराज कॉलोनी</span>
+        
+        <div class="order-form-footer">
+            <button class="submit-order-btn" onclick="submitOrder()" id="submitOrderBtn">
+                <i class="fas fa-check-circle"></i>
+                <span id="submitOrderText">ऑर्डर सबमिट करें</span>
+            </button>
         </div>
     </div>
+</div>
 
-    <div class="social-links">
-        <a href="https://wa.me/916351598832" class="social-link"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://t.me/your_telegram_bot" class="social-link"><i class="fab fa-telegram"></i></a>
-        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-        <a href="index.html" class="social-link"><i class="fas fa-shopping-basket"></i></a>
+<!-- Success Modal -->
+<div class="success-modal" id="successModal">
+    <div class="success-content">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 id="successTitle">🎉 ऑर्डर सफल! 🎉</h2>
+        <p id="successMessage">आपका स्ट्रीट फूड ऑर्डर सफलतापूर्वक सबमिट हो गया है।</p>
+        <p id="successNote">हमारी टीम आपसे संपर्क करेगी और फूड डिलीवरी की जाएगी!</p>
+        <p><strong id="orderIdText">आपका ऑर्डर आईडी: <span id="orderId">BKSS-12345</span></strong></p>
+        <button class="success-btn" onclick="hideSuccessModal()">
+            <i class="fas fa-home"></i>
+            <span id="continueShoppingBtnText">वापस शॉपिंग करें</span>
+        </button>
     </div>
-
-    <p id="copyright">© 2023 Banda Ki Seva — 🍽️ स्वाद अब आपके दरवाज़े पर</p>
-</footer>
+</div>
 
 <!-- Toast Notification -->
 <div class="toast" id="toast">
     <i class="fas fa-check-circle"></i>
-    <div class="toast-message" id="toastMessage">आइटम चयनित</div>
+    <div class="toast-message" id="toastMessage">आइटम टोकरी में जोड़ा गया</div>
 </div>
 
+<!-- Leaflet Map JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
+    // Telegram Bot Configuration
+    const TELEGRAM_BOT_TOKEN = "7729928604:AAEINikbhwHTMSK1pgV3nROUfSGEVb-z2r4";
+    const TELEGRAM_CHAT_ID = "6798434092";
+    const WHATSAPP_PHONE = "916351598832";
+    
     // Language Strings
     const strings = {
         hi: {
-            // Header
+            // App
             appTitle: "Banda Ki Seva",
             appSubtitle: "स्ट्रीट फूड डिलीवरी",
             rationText: "राशन ऑर्डर",
-            ordersText: "मेरे ऑर्डर्स",
             
-            // Hero Section
-            heroTitle: "स्वराज कॉलोनी के लिए स्ट्रीट फूड डिलीवरी",
-            heroSubtitle: "गरमा-गरम चाट, पाव भाजी, गोलगप्पे या मोमो — सब कुछ घर बैठे!",
+            // Welcome
+            welcomeTitle: "🍽️ स्वराज कॉलोनी के लिए स्ट्रीट फूड डिलीवरी 🍽️",
+            welcomeText: "गरमा-गरम चाट, पाव भाजी, गोलगप्पे या मोमो — सब कुछ घर बैठे!",
             
-            // Intro Card
-            introTitle: "🚀 क्या आपका मन कर रहा है गरमा-गरम स्ट्रीट फूड?",
-            introText1: "🎯 अब बाहर जाने की ज़रूरत नहीं — बंदा की सेवा लाएगा आपके पसंदीदा स्ट्रीट फूड को सीधे आपके दरवाज़े पर।",
-            introText2: "📍 हम स्वराज कॉलोनी में सभी प्रकार के स्ट्रीट फूड की होम डिलीवरी करते हैं।",
-            deliveryCharge: "₹20 फिक्स्ड",
-            whatsappText: "पर मैसेज करें",
-            telegramText: "पर मैसेज करें",
+            // Food Items
+            foodItemsTitle: "स्ट्रीट फूड आइटम्स",
+            loadingTitle: "फूड आइटम लोड हो रहे हैं...",
+            loadingText: "कृपया थोड़ी देर प्रतीक्षा करें",
             
-            // Food Selection
-            foodSelectionTitle: "🍽️ पसंदीदा आइटम चुनें",
-            customItemLabel: "✏️ अन्य आइटम (अगर ऊपर नहीं है)",
-            quantityLabel: "📦 मात्रा",
-            specialInstructionsLabel: "📝 विशेष निर्देश (अगर कोई)",
+            // Cart
+            cartTitle: "आपकी टोकरी",
+            emptyCartTitle: "आपकी टोकरी खाली है",
+            emptyCartText: "उत्पाद जोड़ने के लिए + बटन पर क्लिक करें",
+            totalItemsText: "कुल आइटम:",
+            subtotalText: "कुल मूल्य:",
+            deliveryText: "डिलीवरी शुल्क:",
+            totalAmountText: "कुल राशि:",
+            continueShoppingText: "खरीदारी जारी रखें",
+            placeOrderText: "ऑर्डर देना है",
             
-            // Customer Details
-            customerDetailsTitle: "👤 आपकी जानकारी",
-            nameLabel: "👤 आपका नाम *",
-            phoneLabel: "📞 मोबाइल नंबर *",
-            houseLabel: "🏠 हाउस नंबर *",
-            addressLabel: "📍 पूरा पता *",
-            deliveryTimeLabel: "⏰ डिलीवरी समय",
-            selectTimeOption: "-- समय चुनें --",
-            time1: "सुबह 11:00 - 1:00",
-            time2: "दोपहर 1:00 - 3:00",
-            time3: "दोपहर 3:00 - 5:00",
-            time4: "शाम 5:00 - 7:00",
-            time5: "शाम 7:00 - 9:00",
-            time6: "रात 9:00 - 10:00",
+            // Order Form
+            orderFormTitle: "📝 आखिरी स्टेप! 📝",
+            orderFormSubtitle: "अपना विवरण भरें और ऑर्डर सबमिट करें",
+            nameLabel: "आपका नाम *",
+            phoneLabel: "फोन नंबर *",
+            addressLabel: "पूरा पता *",
+            deliveryTimeLabel: "डिलीवरी समय",
+            locationLabel: "आपका स्थान",
+            locationHelp: "अपना स्थान साझा करें ताकि डिलीवरी आसान हो",
+            locationButtonText: "स्थान साझा करें",
+            notesLabel: "विशेष निर्देश (अगर कोई हो)",
+            orderSummaryTitle: "आपका ऑर्डर सारांश",
+            deliveryChargeText: "डिलीवरी शुल्क:",
+            totalText: "कुल राशि:",
+            submitOrderText: "ऑर्डर सबमिट करें",
             
-            // Submit Section
-            submitTitle: "🚀 ऑर्डर भेजें",
-            orderNote: "✅ ऑर्डर भेजने के बाद हमारी टीम आपसे संपर्क करेगी<br>💰 डिलीवरी चार्ज: ₹20 फिक्स्ड",
-            whatsappBtnText: "WhatsApp पर ऑर्डर भेजें",
-            telegramBtnText: "Telegram पर ऑर्डर भेजें",
+            // Success
+            successTitle: "🎉 ऑर्डर सफल! 🎉",
+            successMessage: "आपका स्ट्रीट फूड ऑर्डर सफलतापूर्वक सबमिट हो गया है।",
+            successNote: "हमारी टीम आपसे संपर्क करेगी और फूड डिलीवरी की जाएगी!",
+            orderIdText: "आपका ऑर्डर आईडी:",
+            continueShoppingBtnText: "वापस शॉपिंग करें",
             
-            // Footer
-            phoneNumber: "📞 6798434092",
-            timing: "⏰ 11AM - 10PM",
-            location: "📍 स्वराज कॉलोनी",
-            copyright: "© 2023 Banda Ki Seva — 🍽️ स्वाद अब आपके दरवाज़े पर"
+            // Button
+            orderButtonText: "ऑर्डर सबमिट करें"
         },
         en: {
-            // Header
+            // App
             appTitle: "Banda Ki Seva",
             appSubtitle: "Street Food Delivery",
             rationText: "Ration Order",
-            ordersText: "My Orders",
             
-            // Hero Section
-            heroTitle: "Street Food Delivery for Swaraj Colony",
-            heroSubtitle: "Hot Chaat, Pav Bhaji, Golgappe or Momo — Everything at home!",
+            // Welcome
+            welcomeTitle: "🍽️ Street Food Delivery for Swaraj Colony 🍽️",
+            welcomeText: "Hot Chaat, Pav Bhaji, Golgappe or Momo — Everything at home!",
             
-            // Intro Card
-            introTitle: "🚀 Craving for hot street food?",
-            introText1: "🎯 No need to go out now — Banda Ki Seva will bring your favorite street food right to your doorstep.",
-            introText2: "📍 We provide home delivery of all types of street food in Swaraj Colony.",
-            deliveryCharge: "₹20 Fixed",
-            whatsappText: "Message on",
-            telegramText: "Message on",
+            // Food Items
+            foodItemsTitle: "Street Food Items",
+            loadingTitle: "Food items loading...",
+            loadingText: "Please wait a moment",
             
-            // Food Selection
-            foodSelectionTitle: "🍽️ Choose Favorite Items",
-            customItemLabel: "✏️ Other Item (if not above)",
-            quantityLabel: "📦 Quantity",
-            specialInstructionsLabel: "📝 Special Instructions (if any)",
+            // Cart
+            cartTitle: "Your Cart",
+            emptyCartTitle: "Your cart is empty",
+            emptyCartText: "Click + button to add products",
+            totalItemsText: "Total Items:",
+            subtotalText: "Total Value:",
+            deliveryText: "Delivery Charge:",
+            totalAmountText: "Total Amount:",
+            continueShoppingText: "Continue Shopping",
+            placeOrderText: "Place Order",
             
-            // Customer Details
-            customerDetailsTitle: "👤 Your Information",
-            nameLabel: "👤 Your Name *",
-            phoneLabel: "📞 Mobile Number *",
-            houseLabel: "🏠 House Number *",
-            addressLabel: "📍 Full Address *",
-            deliveryTimeLabel: "⏰ Delivery Time",
-            selectTimeOption: "-- Select Time --",
-            time1: "Morning 11:00 - 1:00",
-            time2: "Afternoon 1:00 - 3:00",
-            time3: "Afternoon 3:00 - 5:00",
-            time4: "Evening 5:00 - 7:00",
-            time5: "Evening 7:00 - 9:00",
-            time6: "Night 9:00 - 10:00",
+            // Order Form
+            orderFormTitle: "📝 Final Step! 📝",
+            orderFormSubtitle: "Fill your details and submit order",
+            nameLabel: "Your Name *",
+            phoneLabel: "Phone Number *",
+            addressLabel: "Full Address *",
+            deliveryTimeLabel: "Delivery Time",
+            locationLabel: "Your Location",
+            locationHelp: "Share your location for easier delivery",
+            locationButtonText: "Share Location",
+            notesLabel: "Special Instructions (if any)",
+            orderSummaryTitle: "Your Order Summary",
+            deliveryChargeText: "Delivery Charge:",
+            totalText: "Total Amount:",
+            submitOrderText: "Submit Order",
             
-            // Submit Section
-            submitTitle: "🚀 Submit Order",
-            orderNote: "✅ Our team will contact you after sending order<br>💰 Delivery Charge: ₹20 Fixed",
-            whatsappBtnText: "Send Order via WhatsApp",
-            telegramBtnText: "Send Order via Telegram",
+            // Success
+            successTitle: "🎉 Order Successful! 🎉",
+            successMessage: "Your street food order has been submitted successfully.",
+            successNote: "Our team will contact you and food will be delivered!",
+            orderIdText: "Your Order ID:",
+            continueShoppingBtnText: "Back to Shopping",
             
-            // Footer
-            phoneNumber: "📞 6798434092",
-            timing: "⏰ 11AM - 10PM",
-            location: "📍 Swaraj Colony",
-            copyright: "© 2023 Banda Ki Seva — 🍽️ Taste now at your doorstep"
+            // Button
+            orderButtonText: "Submit Order"
         }
     };
 
-    // Food Items Data
+    // Food Database
     const foodItems = [
-        { id: 1, name: "🍞 पाव भाजी", name_en: "🍞 Pav Bhaji", price: "₹50-80", icon: "🍞", color: "#FF9800" },
-        { id: 2, name: "💧 पानीपुरी", name_en: "💧 Panipuri", price: "₹30-50", icon: "💧", color: "#2196F3" },
-        { id: 3, name: "🥟 तंदूरी मोमो", name_en: "🥟 Tandoori Momo", price: "₹80-120", icon: "🥟", color: "#F44336" },
-        { id: 4, name: "🥟 स्टीम मोमो", name_en: "🥟 Steam Momo", price: "₹60-100", icon: "🥟", color: "#4CAF50" },
-        { id: 5, name: "🥟 फ्राई मोमो", name_en: "🥟 Fry Momo", price: "₹70-110", icon: "🥟", color: "#FF5722" },
-        { id: 6, name: "🧆 चाट", name_en: "🧆 Chaat", price: "₹40-60", icon: "🧆", color: "#9C27B0" },
-        { id: 7, name: "🥟 समोसा", name_en: "🥟 Samosa", price: "₹10-20", icon: "🥟", color: "#795548" },
-        { id: 8, name: "🍦 कुल्फी", name_en: "🍦 Kulfi", price: "₹30-50", icon: "🍦", color: "#00BCD4" },
-        { id: 9, name: "🥘 डोसा", name_en: "🥘 Dosa", price: "₹60-100", icon: "🥘", color: "#FFC107" },
-        { id: 10, name: "🥣 इडली-सम्बर", name_en: "🥣 Idli-Sambhar", price: "₹40-70", icon: "🥣", color: "#8BC34A" },
-        { id: 11, name: "🍜 चाऊमीन", name_en: "🍜 Chowmein", price: "₹70-100", icon: "🍜", color: "#E91E63" },
-        { id: 12, name: "🍜 मैगी", name_en: "🍜 Maggi", price: "₹40-60", icon: "🍜", color: "#FF9800" }
+        { 
+            id: 1, 
+            name: "पाव भाजी", 
+            name_en: "Pav Bhaji", 
+            emoji: "🍞", 
+            icon: "fas fa-bread-slice",
+            price: 60, 
+            description: "मसालेदार सब्ज़ी, मक्खन पाव के साथ",
+            description_en: "Spicy vegetables with buttered pav",
+            category: "भारतीय"
+        },
+        { 
+            id: 2, 
+            name: "गोलगप्पे", 
+            name_en: "Golgappe", 
+            emoji: "💧", 
+            icon: "fas fa-water",
+            price: 30, 
+            description: "कुरकुरे पानीपुरी, मसालेदार पानी",
+            description_en: "Crispy puris with spicy water",
+            category: "स्नैक्स"
+        },
+        { 
+            id: 3, 
+            name: "तंदूरी मोमो", 
+            name_en: "Tandoori Momo", 
+            emoji: "🥟", 
+            icon: "fas fa-dumpling",
+            price: 100, 
+            description: "तंदूर में बने, मसालेदार मोमो",
+            description_en: "Tandoor baked, spicy momos",
+            category: "चाइनीज"
+        },
+        { 
+            id: 4, 
+            name: "स्टीम मोमो", 
+            name_en: "Steam Momo", 
+            emoji: "🥟", 
+            icon: "fas fa-dumpling",
+            price: 80, 
+            description: "भाप में पके, ताज़ा मोमो",
+            description_en: "Steamed, fresh momos",
+            category: "चाइनीज"
+        },
+        { 
+            id: 5, 
+            name: "फ्राई मोमो", 
+            name_en: "Fry Momo", 
+            emoji: "🥟", 
+            icon: "fas fa-dumpling",
+            price: 90, 
+            description: "कुरकुरे तले हुए मोमो",
+            description_en: "Crispy fried momos",
+            category: "चाइनीज"
+        },
+        { 
+            id: 6, 
+            name: "चाट", 
+            name_en: "Chaat", 
+            emoji: "🧆", 
+            icon: "fas fa-mortar-pestle",
+            price: 50, 
+            description: "मिश्रित चाट, मसालेदार और खट्टा",
+            description_en: "Mixed chaat, spicy and tangy",
+            category: "स्नैक्स"
+        },
+        { 
+            id: 7, 
+            name: "समोसा", 
+            name_en: "Samosa", 
+            emoji: "🥟", 
+            icon: "fas fa-pie",
+            price: 15, 
+            description: "कुरकुरे समोसे, आलू भरा हुआ",
+            description_en: "Crispy samosas, potato filled",
+            category: "स्नैक्स"
+        },
+        { 
+            id: 8, 
+            name: "कुल्फी", 
+            name_en: "Kulfi", 
+            emoji: "🍦", 
+            icon: "fas fa-ice-cream",
+            price: 40, 
+            description: "पारंपरिक भारतीय आइसक्रीम",
+            description_en: "Traditional Indian ice cream",
+            category: "डेज़र्ट"
+        },
+        { 
+            id: 9, 
+            name: "डोसा", 
+            name_en: "Dosa", 
+            emoji: "🥘", 
+            icon: "fas fa-pancake",
+            price: 70, 
+            description: "कुरकुरी डोसा, चटनी और सांभर",
+            description_en: "Crispy dosa, chutney and sambhar",
+            category: "दक्षिण भारतीय"
+        },
+        { 
+            id: 10, 
+            name: "इडली-सम्बर", 
+            name_en: "Idli-Sambhar", 
+            emoji: "🥣", 
+            icon: "fas fa-bowl-food",
+            price: 50, 
+            description: "नरम इडली, गरम सांभर",
+            description_en: "Soft idli, hot sambhar",
+            category: "दक्षिण भारतीय"
+        },
+        { 
+            id: 11, 
+            name: "चाऊमीन", 
+            name_en: "Chowmein", 
+            emoji: "🍜", 
+            icon: "fas fa-noodles",
+            price: 80, 
+            description: "सब्ज़ी चाउमीन, ताज़ी सब्ज़ियों के साथ",
+            description_en: "Veg chowmein with fresh vegetables",
+            category: "चाइनीज"
+        },
+        { 
+            id: 12, 
+            name: "मैगी", 
+            name_en: "Maggi", 
+            emoji: "🍜", 
+            icon: "fas fa-utensils",
+            price: 40, 
+            description: "2-मिनट नूडल्स, मसालेदार",
+            description_en: "2-minute noodles, spicy",
+            category: "फास्ट फूड"
+        }
     ];
 
-    // Global Variables
+    // Application State
+    let cart = {};
+    let currentColony = "Swaraj Colony";
     let currentLanguage = "hi";
-    let selectedFoodItems = [];
+    let userLocation = null;
+    
+    // DOM Elements
+    const foodContainer = document.getElementById('foodContainer');
+    const cartCount = document.getElementById('cartCount');
+    const fixedOrderBtn = document.getElementById('fixedOrderBtn');
+    const cartPreviewModal = document.getElementById('cartPreviewModal');
+    const cartItemsList = document.getElementById('cartItemsList');
+    const previewTotalItems = document.getElementById('previewTotalItems');
+    const previewSubtotal = document.getElementById('previewSubtotal');
+    const previewDelivery = document.getElementById('previewDelivery');
+    const previewTotalAmount = document.getElementById('previewTotalAmount');
+    const deliveryInfoRow = document.getElementById('deliveryInfoRow');
+    const orderFormModal = document.getElementById('orderFormModal');
+    const orderSummaryContent = document.getElementById('orderSummaryContent');
+    const orderFormDelivery = document.getElementById('orderFormDelivery');
+    const orderFormTotal = document.getElementById('orderFormTotal');
+    const submitOrderBtn = document.getElementById('submitOrderBtn');
+    const successModal = document.getElementById('successModal');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    const colonyName = document.getElementById('colonyName');
+    const orderId = document.getElementById('orderId');
+    const locationDisplay = document.getElementById('locationDisplay');
+    const locationText = document.getElementById('locationText');
 
     // Initialize the application
     function initApp() {
@@ -1005,19 +1457,29 @@
             updateLanguageButtons();
         }
         
-        // Load customer info
+        // Check if user is from Swaraj Colony
+        const savedColony = localStorage.getItem('userColony');
+        
+        if (savedColony) {
+            currentColony = savedColony;
+            colonyName.textContent = currentColony;
+        } else {
+            showWelcomeMessage();
+        }
+        
+        // Load cart from localStorage
+        const savedCart = localStorage.getItem('streetFoodCart');
+        if (savedCart) {
+            cart = JSON.parse(savedCart);
+        }
+        
+        // Load customer info and auto-fill
         loadCustomerInfo();
         
-        // Render food items
-        renderFoodItems();
-        
-        // Update all texts
+        // Render everything
         updateAllTexts();
-        
-        // Focus on name field
-        setTimeout(() => {
-            document.getElementById('customerName').focus();
-        }, 500);
+        renderFoodItems();
+        updateCartDisplay();
     }
 
     // Language functions
@@ -1045,68 +1507,390 @@
         document.querySelectorAll('[id]').forEach(element => {
             const id = element.id;
             if (lang[id]) {
-                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') {
-                    if (element.placeholder) {
-                        element.placeholder = lang[id];
-                    }
+                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                    element.placeholder = lang[id];
                 } else {
                     element.innerHTML = lang[id];
                 }
             }
         });
         
-        // Special cases for options
-        document.getElementById('selectTimeOption').textContent = lang.selectTimeOption;
-        document.getElementById('time1').textContent = lang.time1;
-        document.getElementById('time2').textContent = lang.time2;
-        document.getElementById('time3').textContent = lang.time3;
-        document.getElementById('time4').textContent = lang.time4;
-        document.getElementById('time5').textContent = lang.time5;
-        document.getElementById('time6').textContent = lang.time6;
+        // Special cases
+        document.getElementById('appTitle').textContent = lang.appTitle;
+        document.getElementById('appSubtitle').textContent = lang.appSubtitle;
+    }
+
+    // Show welcome message
+    function showWelcomeMessage() {
+        const message = currentLanguage === 'hi' 
+            ? "👋 नमस्ते! आप किस कॉलोनी से हैं?\n\nउदाहरण: Swaraj Colony"
+            : "👋 Hello! Which colony are you from?\n\nExample: Swaraj Colony";
+            
+        const colony = prompt(message);
+        if (colony) {
+            if (colony.toLowerCase().includes("swaraj") || colony.toLowerCase().includes("colony")) {
+                currentColony = colony;
+                localStorage.setItem('userColony', colony);
+                colonyName.textContent = currentColony;
+                showToast(currentLanguage === 'hi' 
+                    ? `🎉 स्वागत है! ${colony} से आपका ऑर्डर स्वीकार किया गया है।`
+                    : `🎉 Welcome! Your order from ${colony} has been accepted.`);
+            } else {
+                const errorMsg = currentLanguage === 'hi'
+                    ? "❌ क्षमा करें! सेवा सिर्फ Swaraj Colony के लिए है।"
+                    : "❌ Sorry! Service is only for Swaraj Colony.";
+                alert(errorMsg);
+                
+                const errorHTML = currentLanguage === 'hi'
+                    ? `<div style="text-align:center; padding:50px; font-size:18px; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                        <div style="font-size:80px; margin-bottom:20px;">🏠</div>
+                        <h2 style="color:#d32f2f;">❌ सेवा सिर्फ Swaraj Colony के लिए</h2>
+                        <p style="margin-top:20px; color:#555;">कृपया किसी Swaraj Colony निवासी से संपर्क करें।</p>
+                        <button onclick="location.reload()" style="margin-top:30px; padding:15px 30px; background:#FF5722; color:white; border:none; border-radius:10px; font-size:18px; cursor:pointer;">
+                            🔄 फिर से कोशिश करें
+                        </button>
+                    </div>`
+                    : `<div style="text-align:center; padding:50px; font-size:18px; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                        <div style="font-size:80px; margin-bottom:20px;">🏠</div>
+                        <h2 style="color:#d32f2f;">❌ Service only for Swaraj Colony</h2>
+                        <p style="margin-top:20px; color:#555;">Please contact a Swaraj Colony resident.</p>
+                        <button onclick="location.reload()" style="margin-top:30px; padding:15px 30px; background:#FF5722; color:white; border:none; border-radius:10px; font-size:18px; cursor:pointer;">
+                            🔄 Try Again
+                        </button>
+                    </div>`;
+                    
+                document.body.innerHTML = errorHTML;
+                return;
+            }
+        }
+    }
+
+    // Location functions
+    function getUserLocation() {
+        if (!navigator.geolocation) {
+            showToast(currentLanguage === 'hi' 
+                ? "⚠️ आपका ब्राउज़र लोकेशन सपोर्ट नहीं करता" 
+                : "⚠️ Your browser doesn't support location");
+            return;
+        }
+        
+        showToast(currentLanguage === 'hi' 
+            ? "📍 आपका स्थान प्राप्त किया जा रहा है..." 
+            : "📍 Getting your location...");
+        
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                try {
+                    // Get address from coordinates
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                    const data = await response.json();
+                    
+                    userLocation = {
+                        lat: lat,
+                        lng: lng,
+                        address: data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+                    };
+                    
+                    locationText.textContent = userLocation.address;
+                    locationDisplay.classList.add('active');
+                    
+                    showToast(currentLanguage === 'hi' 
+                        ? "✅ आपका स्थान सफलतापूर्वक प्राप्त हो गया" 
+                        : "✅ Your location obtained successfully");
+                } catch (error) {
+                    console.error("Geocoding error:", error);
+                    userLocation = {
+                        lat: lat,
+                        lng: lng,
+                        address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+                    };
+                    
+                    locationText.textContent = userLocation.address;
+                    locationDisplay.classList.add('active');
+                    
+                    showToast(currentLanguage === 'hi' 
+                        ? "📍 स्थान प्राप्त (मैन्युअल)" 
+                        : "📍 Location obtained (manual)");
+                }
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                showToast(currentLanguage === 'hi' 
+                    ? "❌ स्थान प्राप्त करने में त्रुटि" 
+                    : "❌ Error getting location");
+            }
+        );
     }
 
     // Render food items
     function renderFoodItems() {
-        const container = document.getElementById('foodItemsGrid');
-        container.innerHTML = '';
+        foodContainer.innerHTML = '';
         
-        foodItems.forEach(item => {
-            const isSelected = selectedFoodItems.includes(item.id);
-            const card = document.createElement('div');
-            card.className = `food-item-card ${isSelected ? 'selected' : ''}`;
-            card.setAttribute('data-id', item.id);
-            card.innerHTML = `
-                <div class="food-icon">${item.icon}</div>
-                <div class="food-name">${currentLanguage === 'hi' ? item.name : item.name_en}</div>
-                <div class="food-price">${item.price}</div>
+        foodItems.forEach(food => {
+            const foodCard = document.createElement('div');
+            foodCard.className = 'food-card';
+            foodCard.setAttribute('data-category', food.category);
+            
+            // Get quantity from cart
+            let quantity = 0;
+            if (cart[food.name]) {
+                quantity = cart[food.name].quantity;
+            }
+            
+            foodCard.innerHTML = `
+                <div class="food-image">
+                    ${food.emoji}
+                </div>
+                <div class="food-badge">₹${food.price}</div>
+                <div class="food-body">
+                    <h3 class="food-name">${food.emoji} ${currentLanguage === 'hi' ? food.name : food.name_en}</h3>
+                    <div class="food-description">${currentLanguage === 'hi' ? food.description : food.description_en}</div>
+                    <div class="food-price">₹${food.price} <span>${currentLanguage === 'hi' ? 'प्रति प्लेट' : 'per plate'}</span></div>
+                    <div class="food-controls">
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="decrementItem('${food.name}', ${food.price}, ${food.id})">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <div class="qty-display" id="qty-${food.id}">${quantity}</div>
+                            <button class="qty-btn" onclick="addToCart('${food.name}', ${food.price}, '${currentLanguage === 'hi' ? food.description : food.description_en}', ${food.id})">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <button class="add-to-cart" onclick="addToCart('${food.name}', ${food.price}, '${currentLanguage === 'hi' ? food.description : food.description_en}', ${food.id})">
+                            <i class="fas fa-cart-plus"></i>
+                            <span>${currentLanguage === 'hi' ? 'जोड़ें' : 'Add'}</span>
+                        </button>
+                    </div>
+                </div>
             `;
             
-            card.addEventListener('click', () => toggleFoodItem(item.id));
-            container.appendChild(card);
+            foodContainer.appendChild(foodCard);
         });
     }
 
-    // Toggle food item selection
-    function toggleFoodItem(itemId) {
-        const index = selectedFoodItems.indexOf(itemId);
-        if (index > -1) {
-            selectedFoodItems.splice(index, 1);
+    // Cart functions
+    function addToCart(name, price, description, foodId) {
+        // Play sound
+        playSound('add');
+        
+        if (!cart[name]) {
+            cart[name] = {
+                quantity: 1,
+                price: price,
+                description: description,
+                foodId: foodId
+            };
         } else {
-            selectedFoodItems.push(itemId);
+            cart[name].quantity++;
         }
         
-        // Update UI
-        const card = document.querySelector(`[data-id="${itemId}"]`);
-        card.classList.toggle('selected');
+        updateQuantityDisplay(foodId, cart[name].quantity);
+        saveCart();
+        updateCartDisplay();
         
-        // Show toast
-        const itemName = currentLanguage === 'hi' 
-            ? foodItems.find(f => f.id === itemId).name 
-            : foodItems.find(f => f.id === itemId).name_en;
+        const message = currentLanguage === 'hi' 
+            ? `🎉 ${name} कार्ट में जोड़ा गया!`
+            : `🎉 ${name} added to cart!`;
+        showToast(message);
+    }
+
+    function decrementItem(name, price, foodId) {
+        // Play sound
+        playSound('remove');
         
-        showToast(currentLanguage === 'hi' 
-            ? `${selectedFoodItems.includes(itemId) ? '✅' : '❌'} ${itemName.split(' ')[1] || itemName}`
-            : `${selectedFoodItems.includes(itemId) ? '✅' : '❌'} ${itemName.split(' ')[1] || itemName}`);
+        if (cart[name]) {
+            if (cart[name].quantity > 1) {
+                cart[name].quantity--;
+                updateQuantityDisplay(foodId, cart[name].quantity);
+                saveCart();
+                updateCartDisplay();
+                
+                const message = currentLanguage === 'hi' 
+                    ? `➖ ${name} कार्ट से हटाया गया`
+                    : `➖ ${name} removed from cart`;
+                showToast(message);
+            } else {
+                // Ask if user wants to remove
+                const confirmMsg = currentLanguage === 'hi' 
+                    ? `क्या आप ${name} को पूरी तरह से कार्ट से हटाना चाहते हैं?`
+                    : `Do you want to completely remove ${name} from cart?`;
+                    
+                if (confirm(confirmMsg)) {
+                    delete cart[name];
+                    updateQuantityDisplay(foodId, 0);
+                    saveCart();
+                    updateCartDisplay();
+                    
+                    const message = currentLanguage === 'hi' 
+                        ? `🗑️ ${name} कार्ट से हटाया गया`
+                        : `🗑️ ${name} removed from cart`;
+                    showToast(message);
+                }
+            }
+        }
+    }
+
+    function removeCartItem(name, foodId) {
+        // Play sound
+        playSound('remove');
+        
+        if (cart[name]) {
+            updateQuantityDisplay(foodId, 0);
+            delete cart[name];
+            
+            saveCart();
+            updateCartDisplay();
+            updateCartPreview();
+            
+            const message = currentLanguage === 'hi' 
+                ? `🗑️ ${name} कार्ट से हटाया गया`
+                : `🗑️ ${name} removed from cart`;
+            showToast(message);
+        }
+    }
+
+    function updateQuantityDisplay(foodId, quantity) {
+        const qtyElement = document.getElementById(`qty-${foodId}`);
+        if (qtyElement) {
+            qtyElement.textContent = quantity;
+        }
+    }
+
+    function updateCartDisplay() {
+        // Calculate totals
+        let totalCount = 0;
+        let totalPrice = 0;
+        
+        for (const item in cart) {
+            totalCount += cart[item].quantity;
+            totalPrice += cart[item].quantity * cart[item].price;
+        }
+        
+        // Update cart count
+        cartCount.textContent = totalCount;
+        
+        // Calculate total amount (food price + ₹20 delivery)
+        const deliveryCharge = 20;
+        const totalAmount = totalPrice + deliveryCharge;
+        
+        // Enable/disable order button
+        if (totalCount > 0) {
+            fixedOrderBtn.disabled = false;
+            const buttonText = currentLanguage === 'hi' 
+                ? `ऑर्डर सबमिट करें (₹${totalAmount})`
+                : `Submit Order (₹${totalAmount})`;
+            fixedOrderBtn.innerHTML = `
+                <i class="fas fa-paper-plane"></i>
+                <span>${buttonText}</span>
+                <i class="fas fa-arrow-right"></i>
+            `;
+        } else {
+            fixedOrderBtn.disabled = true;
+            const buttonText = currentLanguage === 'hi' 
+                ? "पहले कार्ट में आइटम जोड़ें"
+                : "Add items to cart first";
+            fixedOrderBtn.innerHTML = `
+                <i class="fas fa-shopping-cart"></i>
+                <span>${buttonText}</span>
+            `;
+        }
+        
+        // Save cart
+        saveCart();
+    }
+
+    function updateCartPreview() {
+        let cartHTML = '';
+        let totalCount = 0;
+        let totalPrice = 0;
+        
+        for (const item in cart) {
+            const itemData = cart[item];
+            const itemTotal = itemData.quantity * itemData.price;
+            totalCount += itemData.quantity;
+            totalPrice += itemTotal;
+            
+            cartHTML += `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h4>${item}</h4>
+                        <div class="price">${itemData.description}</div>
+                        <div class="cart-item-qty">
+                            <button class="cart-item-qty-btn" onclick="decrementItem('${item}', ${itemData.price}, ${itemData.foodId})">
+                                -
+                            </button>
+                            <span>${itemData.quantity}</span>
+                            <button class="cart-item-qty-btn" onclick="addToCart('${item}', ${itemData.price}, '${itemData.description}', ${itemData.foodId})">
+                                +
+                            </button>
+                        </div>
+                    </div>
+                    <div class="cart-item-controls">
+                        <div class="cart-item-price">₹${itemTotal}</div>
+                        <button class="cart-item-qty-btn" style="background:#f44336; color:white;" onclick="removeCartItem('${item}', ${itemData.foodId})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (totalCount === 0) {
+            const emptyTitle = currentLanguage === 'hi' ? 'आपकी टोकरी खाली है' : 'Your cart is empty';
+            const emptyText = currentLanguage === 'hi' ? 'उत्पाद जोड़ने के लिए + बटन पर क्लिक करें' : 'Click + button to add products';
+            
+            cartItemsList.innerHTML = `
+                <div class="empty-state" style="padding: 30px;">
+                    <i class="fas fa-shopping-basket"></i>
+                    <h3>${emptyTitle}</h3>
+                    <p>${emptyText}</p>
+                </div>
+            `;
+        } else {
+            cartItemsList.innerHTML = cartHTML;
+        }
+        
+        // Calculate totals
+        const deliveryCharge = 20;
+        const finalTotal = totalPrice + deliveryCharge;
+        
+        // Update summary
+        previewTotalItems.textContent = `${totalCount} ${currentLanguage === 'hi' ? 'आइटम' : 'items'}`;
+        previewSubtotal.textContent = `₹${totalPrice}`;
+        previewDelivery.textContent = `₹${deliveryCharge}`;
+        previewTotalAmount.textContent = `₹${finalTotal}`;
+        
+        // Update order form summary
+        updateOrderSummary();
+    }
+
+    function updateOrderSummary() {
+        let totalCount = 0;
+        let totalPrice = 0;
+        let summaryHTML = '';
+        
+        for (const item in cart) {
+            const itemData = cart[item];
+            const itemTotal = itemData.quantity * itemData.price;
+            totalCount += itemData.quantity;
+            totalPrice += itemTotal;
+            
+            summaryHTML += `<p>${item} - ${itemData.quantity} ${currentLanguage === 'hi' ? 'प्लेट' : 'plate'} = ₹${itemTotal}</p>`;
+        }
+        
+        const deliveryCharge = 20;
+        const finalTotal = totalPrice + deliveryCharge;
+        
+        orderSummaryContent.innerHTML = summaryHTML;
+        orderFormDelivery.textContent = `₹${deliveryCharge}`;
+        orderFormTotal.textContent = `₹${finalTotal}`;
+    }
+
+    function saveCart() {
+        localStorage.setItem('streetFoodCart', JSON.stringify(cart));
     }
 
     // Load customer info from localStorage
@@ -1126,41 +1910,107 @@
         }
     }
 
-    // Prepare order message
-    function prepareOrderMessage() {
+    // Modal functions
+    function showCartPreview() {
+        updateCartPreview();
+        cartPreviewModal.classList.add('active');
+    }
+
+    function hideCartPreview() {
+        cartPreviewModal.classList.remove('active');
+    }
+
+    function showOrderForm() {
+        if (Object.keys(cart).length === 0) {
+            const message = currentLanguage === 'hi' 
+                ? "⚠️ कृपया पहले कार्ट में कुछ आइटम जोड़ें"
+                : "⚠️ Please add some items to cart first";
+            showToast(message);
+            return;
+        }
+        
+        // Auto-fill customer info
+        loadCustomerInfo();
+        
+        // Update summary
+        updateOrderSummary();
+        
+        // Show modal
+        orderFormModal.classList.add('active');
+    }
+
+    function hideOrderForm() {
+        orderFormModal.classList.remove('active');
+    }
+
+    // Send to Telegram
+    async function sendToTelegram(message) {
+        try {
+            let url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            });
+            
+            const data = await response.json();
+            console.log("Telegram response:", data);
+            return data;
+        } catch (error) {
+            console.error("Telegram error:", error);
+            throw error;
+        }
+    }
+
+    // Submit order function
+    async function submitOrder() {
         // Get form values
         const customerName = document.getElementById('customerName').value.trim();
         const customerPhone = document.getElementById('customerPhone').value.trim();
-        const houseNumber = document.getElementById('houseNumber').value.trim();
         const customerAddress = document.getElementById('customerAddress').value.trim();
         const deliveryTime = document.getElementById('deliveryTime').value;
-        const foodQuantity = document.getElementById('foodQuantity').value.trim();
-        const specialInstructions = document.getElementById('specialInstructions').value.trim();
-        const customFoodItem = document.getElementById('customFoodItem').value.trim();
+        const orderNotes = document.getElementById('orderNotes').value.trim();
         
         // Validation
-        if (!customerName || !customerPhone || !houseNumber || !customerAddress || !foodQuantity) {
-            showToast(currentLanguage === 'hi' 
-                ? "⚠️ कृपया सभी ज़रूरी जानकारी भरें" 
-                : "⚠️ Please fill all required information");
-            return null;
+        if (!customerName || !customerPhone || !customerAddress) {
+            const message = currentLanguage === 'hi' 
+                ? "⚠️ कृपया नाम, फोन और पता भरें"
+                : "⚠️ Please fill name, phone and address";
+            showToast(message);
+            return;
         }
         
         if (!/^\d{10}$/.test(customerPhone)) {
-            showToast(currentLanguage === 'hi' 
-                ? "⚠️ कृपया सही 10-अंकीय फोन नंबर दर्ज करें" 
-                : "⚠️ Please enter valid 10-digit phone number");
-            return null;
+            const message = currentLanguage === 'hi' 
+                ? "⚠️ कृपया सही 10-अंकीय फोन नंबर दर्ज करें"
+                : "⚠️ Please enter valid 10-digit phone number";
+            showToast(message);
+            return;
         }
         
-        if (selectedFoodItems.length === 0 && !customFoodItem) {
-            showToast(currentLanguage === 'hi' 
-                ? "⚠️ कृपया कम से कम एक आइटम चुनें" 
-                : "⚠️ Please select at least one item");
-            return null;
-        }
+        // Disable submit button
+        submitOrderBtn.disabled = true;
+        const loadingText = currentLanguage === 'hi' 
+            ? "ऑर्डर भेजा जा रहा है..."
+            : "Sending order...";
+        submitOrderBtn.innerHTML = `
+            <i class="fas fa-spinner fa-spin"></i>
+            ${loadingText}
+        `;
         
-        // Prepare message
+        // Save customer info
+        localStorage.setItem('customerName', customerName);
+        localStorage.setItem('customerPhone', customerPhone);
+        localStorage.setItem('customerAddress', customerAddress);
+        
+        // Prepare order message
         let message = currentLanguage === 'hi' 
             ? `🍜 *Banda Ki Seva - स्ट्रीट फूड ऑर्डर* 🍜\n\n`
             : `🍜 *Banda Ki Seva - Street Food Order* 🍜\n\n`;
@@ -1168,99 +2018,109 @@
         message += `📝 *${currentLanguage === 'hi' ? 'ऑर्डर आईडी' : 'Order ID'}:* BKSS-${Date.now().toString().slice(-5)}\n`;
         message += `👤 *${currentLanguage === 'hi' ? 'ग्राहक' : 'Customer'}:* ${customerName}\n`;
         message += `📱 *${currentLanguage === 'hi' ? 'फोन' : 'Phone'}:* ${customerPhone}\n`;
-        message += `🏠 *${currentLanguage === 'hi' ? 'हाउस नंबर' : 'House Number'}:* ${houseNumber}\n`;
-        message += `📍 *${currentLanguage === 'hi' ? 'पता' : 'Address'}:* ${customerAddress}\n`;
+        message += `🏠 *${currentLanguage === 'hi' ? 'पता' : 'Address'}:* ${customerAddress}\n`;
+        message += `📍 *${currentLanguage === 'hi' ? 'कॉलोनी' : 'Colony'}:* ${currentColony}\n`;
+        message += `⏰ *${currentLanguage === 'hi' ? 'डिलीवरी समय' : 'Delivery Time'}:* ${deliveryTime}\n`;
         
-        if (deliveryTime) {
-            message += `⏰ *${currentLanguage === 'hi' ? 'डिलीवरी समय' : 'Delivery Time'}:* ${deliveryTime}\n`;
+        if (userLocation) {
+            message += `🗺️ *Google Maps:* https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}\n`;
+            message += `📍 *${currentLanguage === 'hi' ? 'स्थान' : 'Location'}:* ${userLocation.address}\n`;
+        }
+        
+        if (orderNotes) {
+            message += `📋 *${currentLanguage === 'hi' ? 'निर्देश' : 'Instructions'}:* ${orderNotes}\n`;
         }
         
         message += `\n═══════════════\n`;
         message += `🛍️ *${currentLanguage === 'hi' ? 'ऑर्डर विवरण' : 'Order Details'}:*\n\n`;
         
-        // Add selected food items
-        selectedFoodItems.forEach((itemId, index) => {
-            const item = foodItems.find(f => f.id === itemId);
-            message += `${index + 1}. ${currentLanguage === 'hi' ? item.name : item.name_en}\n`;
-        });
+        let totalPrice = 0;
+        let itemCount = 0;
         
-        // Add custom food item
-        if (customFoodItem) {
-            message += `${selectedFoodItems.length + 1}. ${customFoodItem}\n`;
+        for (const item in cart) {
+            const itemData = cart[item];
+            const itemTotal = itemData.quantity * itemData.price;
+            message += `• ${item} - ${itemData.quantity} ${currentLanguage === 'hi' ? 'प्लेट' : 'plate'} = ₹${itemTotal}\n`;
+            totalPrice += itemTotal;
+            itemCount += itemData.quantity;
         }
         
-        message += `\n📦 *${currentLanguage === 'hi' ? 'मात्रा' : 'Quantity'}:* ${foodQuantity}\n`;
-        
-        if (specialInstructions) {
-            message += `📝 *${currentLanguage === 'hi' ? 'विशेष निर्देश' : 'Special Instructions'}:* ${specialInstructions}\n`;
-        }
+        const deliveryCharge = 20;
+        const finalTotal = totalPrice + deliveryCharge;
         
         message += `\n═══════════════\n`;
-        message += `💰 *${currentLanguage === 'hi' ? 'डिलीवरी चार्ज' : 'Delivery Charge'}:* ₹20 फिक्स्ड\n`;
-        message += `💸 *${currentLanguage === 'hi' ? 'कुल राशि' : 'Total Amount'}:* आइटम की कीमत + ₹20\n\n`;
+        message += `💰 *${currentLanguage === 'hi' ? 'सारांश' : 'Summary'}:*\n`;
+        message += `📦 ${currentLanguage === 'hi' ? 'कुल आइटम' : 'Total Items'}: ${itemCount}\n`;
+        message += `💵 ${currentLanguage === 'hi' ? 'फूड मूल्य' : 'Food Value'}: ₹${totalPrice}\n`;
+        message += `🚚 ${currentLanguage === 'hi' ? 'डिलीवरी शुल्क' : 'Delivery Charge'}: ₹${deliveryCharge}\n`;
+        message += `🎯 *${currentLanguage === 'hi' ? 'कुल राशि' : 'Total Amount'}: ₹${finalTotal}*\n\n`;
         
-        message += `📞 *${currentLanguage === 'hi' ? 'कॉन्टैक्ट' : 'Contact'}:* 6798434092\n`;
+        message += `📝 *${currentLanguage === 'hi' ? 'नोट' : 'Note'}:* ${currentLanguage === 'hi' 
+            ? 'सभी ऑर्डर पर ₹20 डिलीवरी चार्ज' 
+            : '₹20 delivery charge on all orders'}\n`;
+        
         message += `🙏 ${currentLanguage === 'hi' ? 'धन्यवाद!' : 'Thank you!'}`;
         
-        // Save customer info
-        localStorage.setItem('customerName', customerName);
-        localStorage.setItem('customerPhone', customerPhone);
-        localStorage.setItem('customerAddress', `${houseNumber}, ${customerAddress}`);
-        
-        return message;
+        try {
+            // Send to Telegram
+            await sendToTelegram(message);
+            
+            // Send to WhatsApp
+            sendToWhatsApp(message);
+            
+            // Generate random order ID
+            const randomOrderId = `BKSS-${Date.now().toString().slice(-6)}`;
+            orderId.textContent = randomOrderId;
+            
+            // Play success sound
+            playSound('success');
+            
+            // Hide order form
+            hideOrderForm();
+            hideCartPreview();
+            
+            // Clear cart
+            cart = {};
+            saveCart();
+            updateCartDisplay();
+            
+            // Show success modal after delay
+            setTimeout(() => {
+                successModal.classList.add('active');
+            }, 500);
+            
+        } catch (error) {
+            console.error("Order submission error:", error);
+            const errorMsg = currentLanguage === 'hi' 
+                ? "❌ ऑर्डर भेजने में त्रुटि, कृपया फिर से कोशिश करें"
+                : "❌ Error sending order, please try again";
+            showToast(errorMsg);
+            submitOrderBtn.disabled = false;
+            submitOrderBtn.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                ${currentLanguage === 'hi' ? 'ऑर्डर सबमिट करें' : 'Submit Order'}
+            `;
+        }
     }
 
-    // Send order via WhatsApp
-    function sendOrderViaWhatsApp() {
-        const message = prepareOrderMessage();
-        if (!message) return;
-        
+    // Send to WhatsApp
+    function sendToWhatsApp(message) {
         const encodedMessage = encodeURIComponent(message);
-        const whatsappURL = `https://wa.me/916351598832?text=${encodedMessage}`;
+        const whatsappURL = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`;
         
         // Open in new tab
-        window.open(whatsappURL, '_blank');
-        
-        // Clear form
-        selectedFoodItems = [];
-        renderFoodItems();
-        document.getElementById('customFoodItem').value = '';
-        document.getElementById('foodQuantity').value = '';
-        document.getElementById('specialInstructions').value = '';
-        
-        showToast(currentLanguage === 'hi' 
-            ? "✅ ऑर्डर WhatsApp पर भेजा गया" 
-            : "✅ Order sent on WhatsApp");
+        setTimeout(() => {
+            window.open(whatsappURL, '_blank');
+        }, 1000);
     }
 
-    // Send order via Telegram
-    function sendOrderViaTelegram() {
-        const message = prepareOrderMessage();
-        if (!message) return;
-        
-        const encodedMessage = encodeURIComponent(message);
-        const telegramURL = `https://t.me/your_telegram_bot?text=${encodedMessage}`;
-        
-        // Open in new tab
-        window.open(telegramURL, '_blank');
-        
-        // Clear form
-        selectedFoodItems = [];
-        renderFoodItems();
-        document.getElementById('customFoodItem').value = '';
-        document.getElementById('foodQuantity').value = '';
-        document.getElementById('specialInstructions').value = '';
-        
-        showToast(currentLanguage === 'hi' 
-            ? "✅ ऑर्डर Telegram पर भेजा गया" 
-            : "✅ Order sent on Telegram");
+    function hideSuccessModal() {
+        successModal.classList.remove('active');
+        location.reload();
     }
 
     // Toast notification
     function showToast(message) {
-        const toast = document.getElementById('toast');
-        const toastMessage = document.getElementById('toastMessage');
-        
         toastMessage.textContent = message;
         toast.classList.add('show');
         
@@ -1269,14 +2129,43 @@
         }, 3000);
     }
 
+    // Sound effects
+    function playSound(type) {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            if (type === 'add') {
+                oscillator.frequency.value = 800;
+                gainNode.gain.value = 0.1;
+                oscillator.start();
+                setTimeout(() => oscillator.stop(), 100);
+            } else if (type === 'remove') {
+                oscillator.frequency.value = 400;
+                gainNode.gain.value = 0.1;
+                oscillator.start();
+                setTimeout(() => oscillator.stop(), 100);
+            } else if (type === 'success') {
+                oscillator.frequency.value = 1000;
+                gainNode.gain.value = 0.1;
+                oscillator.start();
+                setTimeout(() => {
+                    oscillator.frequency.value = 1200;
+                }, 100);
+                setTimeout(() => oscillator.stop(), 200);
+            }
+        } catch (e) {
+            console.log("Audio not supported");
+        }
+    }
+
     // Initialize app
     document.addEventListener('DOMContentLoaded', initApp);
-    
-    // Prevent form submission
-    document.addEventListener('submit', function(e) {
-        e.preventDefault();
-        return false;
-    });
 </script>
 </body>
 </html>
+       
